@@ -1,0 +1,12 @@
+fastapi[standard]
+numpy
+opencv-python
+pytesseract
+openai
+pdf2image
+pydantic-settings
+SQLAlchemy
+cloud-sql-python-connector
+pg8000
+bcrypt
+PyJWT

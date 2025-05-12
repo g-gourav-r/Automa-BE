@@ -1,0 +1,10 @@
+.env
+test/
+venv/
+venv
+output/
+auto/
+auto
+__pycache__/
+/__pycache__/
+__pycache__
