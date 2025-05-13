@@ -10,3 +10,5 @@ cloud-sql-python-connector
 pg8000
 bcrypt
 PyJWT
+python-jose
+asyncpg

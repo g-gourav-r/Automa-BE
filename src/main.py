@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-from src.api import api_router
 from fastapi.middleware.cors import CORSMiddleware
+from src.api import api_router
 
 app = FastAPI(title="Automa API", version="1.0")
 
