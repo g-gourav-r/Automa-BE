@@ -1,6 +1,8 @@
+import asyncio
 from pydantic_settings import BaseSettings
-from sqlalchemy import create_engine, text
-from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.orm import declarative_base
+from sqlalchemy.sql import text
 from google.cloud.sql.connector import Connector, IPTypes
 import ssl
 
@@ -12,50 +14,44 @@ class Settings(BaseSettings):
     DB_USER: str
     DB_PASS: str
     DB_NAME: str
+    JWT_SECRET_KEY: str
 
     class Config:
         env_file = ".env"
 
 settings = Settings()
 
-def create_db_engine():
+async def create_async_db_engine():
     connector = Connector()
-    def getconn():
-        conn = connector.connect(
+    async def getconn():
+        conn = await connector.connect_async(
             settings.INSTANCE_CONNECTION_NAME,
-            "pg8000",
+            "asyncpg",
             user=settings.DB_USER,
             password=settings.DB_PASS,
             db=settings.DB_NAME,
-            ip_type=IPTypes.PUBLIC
+            ip_type=IPTypes.PUBLIC,
+            loop=asyncio.get_running_loop()
         )
         return conn
 
-    engine = create_engine(
-        "postgresql+pg8000://",
-        creator=getconn,
+    engine = create_async_engine(
+        "postgresql+asyncpg://",  # Specify asyncpg dialect
+        async_creator=getconn,  # Use async_creator instead of connect_args
+        pool_pre_ping=True
     )
     return engine
 
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=create_db_engine())
+async def get_db():
+    engine = await create_async_db_engine()
+    async with AsyncSession(engine, expire_on_commit=False) as session:
+        try:
+            yield session
+            await session.commit()
+        except Exception:
+            await session.rollback()
+            raise
+        finally:
+            await engine.dispose() # Dispose of the engine
+
 Base = declarative_base()
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-if __name__ == "__main__":
-    engine = create_db_engine()
-    try:
-        with engine.connect() as conn:
-            result = conn.execute(text("SELECT 'Configuration is working!'"))
-            message = result.scalar_one()
-            print(message)
-    except Exception as e:
-        print(f"Error connecting to database: {e}")
-    finally:
-        if 'connector' in locals() and connector:
-            connector.close()
