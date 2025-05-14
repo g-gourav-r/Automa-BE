@@ -1,10 +1,12 @@
 from fastapi import APIRouter
-from .endpoints import invoice, auth
+from .endpoints import invoice, auth, profile, template
 
 api_router = APIRouter()
 
-# Include the auth router (signup/login)
 api_router.include_router(auth.router, prefix="/auth", tags=["auth"])
 
-# Include the other API endpoints (e.g., invoice routes)
 api_router.include_router(invoice.router, prefix="/invoice", tags=["invoice"])
+
+api_router.include_router(profile.router, prefix="/me", tags=["profile"]) 
+
+api_router.include_router(template.router, prefix="/template", tags=["template"]) 
