@@ -12,3 +12,4 @@ bcrypt
 PyJWT
 python-jose
 asyncpg
+google-cloud-storage

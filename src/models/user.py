@@ -3,6 +3,7 @@ from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from src.core.config import Base
+from src.models.templates import Template
 
 class Company(Base):
     __tablename__ = "companies"
@@ -14,6 +15,7 @@ class Company(Base):
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
 
     platform_users = relationship("PlatformUser", back_populates="company")
+    templates = relationship("Template", back_populates="company") 
 
 class PlatformUser(Base):
     __tablename__ = "platform_users"
@@ -30,6 +32,7 @@ class PlatformUser(Base):
     
     company = relationship("Company", back_populates="platform_users")
     credentials = relationship("UserCredentials", uselist=False, back_populates="user")
+    templates = relationship("Template", back_populates="creator")
 
 class UserCredentials(Base):
     __tablename__ = "user_credentials"
