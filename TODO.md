@@ -1,0 +1,1 @@
+- Create a service worker dedicated for signing the URLs
