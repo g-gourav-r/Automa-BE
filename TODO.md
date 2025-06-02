@@ -1,1 +1,5 @@
 - Create a service worker dedicated for signing the URLs
+- Create a provision to show annotated image even when the data is uploaded to the template
+- Add a function which will keep a track of number of tokens used by the user/company.
+- Rename the file while storing it to the bucket.
+- BACKLOG : UI show tempalte description

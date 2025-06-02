@@ -8,6 +8,7 @@ from google.cloud import storage
 from google.oauth2 import service_account
 from google.auth import default
 from google.cloud import iam_credentials_v1
+import base64 
 
 from src.core.config import settings
 
@@ -74,6 +75,8 @@ def generate_signed_url(bucket_name: str, blob_path: str, expiration_minutes: in
     """Generate a signed URL using IAM-based signing"""
     try:
         expiration = int((datetime.utcnow() + timedelta(minutes=expiration_minutes)).timestamp())
+
+
         
         # String to sign
         string_to_sign = (
@@ -83,12 +86,20 @@ def generate_signed_url(bucket_name: str, blob_path: str, expiration_minutes: in
             f"{expiration}\n"
             f"/{bucket_name}/{blob_path}"
         )
+
         
         # Get signature
-        signature = sign_blob(string_to_sign.encode('utf-8'))
+        raw_signature_bytes = sign_blob(string_to_sign.encode('utf-8'))
+        base64_signature = base64.b64encode(raw_signature_bytes).decode('utf-8')
         
         # Construct URL
-        encoded_signature = urllib.parse.quote(signature)
+        encoded_signature = urllib.parse.quote(base64_signature)
+
+        # DEBUG logging
+        logger.debug(f"String to sign: {repr(string_to_sign)}")
+        logger.debug(f"Raw signature bytes: {repr(raw_signature_bytes)}") # Optional, but good for understanding
+        logger.debug(f"Base64 signature: {base64_signature}")
+        logger.debug(f"Encoded signature: {encoded_signature}")
         url = (
             f"https://storage.googleapis.com/{bucket_name}/{blob_path}"
             f"?GoogleAccessId={service_account_email}"
