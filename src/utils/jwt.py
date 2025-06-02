@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from fastapi import HTTPException
+from fastapi import HTTPException, status
 from src.core.config import settings  # Assuming the secret key is in the config
 from jose import jwt
 from jose.exceptions import ExpiredSignatureError, JWTError
